@@ -1,6 +1,16 @@
 import streamlit as st
-import google.generativeai as genai 
-import os 
+import google.generativeai as genai
+import os
+
+# --- Carica il Contesto Personalizzato per il Grounding (Informazioni su Modellando) ---
+# Questo file conterrà le informazioni su Modellando riassunte da NotebookLM.
+try:
+    with open("modellando_riassunto.txt", "r", encoding="utf-8") as f:
+        MODELLANDO_CONTEXT = f.read()
+except FileNotFoundError:
+    MODELLANDO_CONTEXT = "Informazioni su Modellando non disponibili. Si prega di contattare l'azienda per maggiori dettagli."
+    st.warning("Attenzione: Il file 'modellando_riassunto.txt' non è stato trovato. Le risposte del bot potrebbero essere meno specifiche.")
+
 
 # --- Configurazione della API Key ---
 api_key = os.environ.get("GOOGLE_API_KEY")
@@ -22,10 +32,10 @@ model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # --- Interfaccia Utente Streamlit ---
 
-st.set_page_config(page_title="Modellando AI - Il tuo Progettista", page_icon=":eyeglasses:")
+st.set_page_config(page_title="Modellando AI - Il Tuo Progettista", page_icon=":eyeglasses:")
 
-st.title("😎 Modellando AI - Il tuo Progettista")
-st.markdown("Ciao!Sono un assitente virtuale che ti guiderà nel mondo di Modellando, l'azienda che può aiutarti con il tuo business")
+st.title("😎 Modellando AI - Il Tuo Progettista")
+st.markdown("Ciao! Sono un assistente virtuale che ti guiderà nel mondo di Modellando, l'azienda che può aiutarti con il tuo business.")
 
 # Inizializza la cronologia della chat se non esiste
 if "messages" not in st.session_state:
@@ -45,12 +55,23 @@ if prompt := st.chat_input("Come posso aiutarti oggi?"):
 
     # Ottiene la risposta dal modello Gemini
     with st.chat_message("assistant"):
-        with st.spinner("Modellando AI sta pensando..."): 
+        with st.spinner("Modellando AI sta pensando..."):
             try:
-                # Chiamata al modello Gemini
-                response = model.generate_content(prompt) 
-                st.markdown(response.text) 
-                st.session_state.messages.append({"role": "assistant", "content": response.text}) 
+                # Costruiamo il prompt completo per Gemini con il contesto
+                full_prompt = f"""
+                Sei un consulente AI esperto in design e arredamento di negozi di ottica, specializzato in soluzioni innovative e su misura.
+                Rispondi alle domande dell'utente basandoti principalmente sulle seguenti informazioni su Modellando Srl.
+                Se la risposta non è nelle informazioni fornite, usa la tua conoscenza generale, ma specifica che le informazioni sono basate sulla tua conoscenza generale e non sui dettagli di Modellando.
+                Mantieni un tono professionale, amichevole e orientato alla soluzione.
+
+                Informazioni chiave su Modellando Srl:
+                {MODELLANDO_CONTEXT}
+
+                Domanda dell'utente: {prompt}
+                """
+                response = model.generate_content(full_prompt)
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
             except Exception as e:
-                st.error(f"Si è verificato un errore durante la generazione della risposta: {e}") 
-                st.session_state.messages.append({"role": "assistant", "content": "Ops! Sembra esserci stato un problema. Riprova più tardi."}) 
+                st.error(f"Si è verificato un errore durante la generazione della risposta: {e}")
+                st.session_state.messages.append({"role": "assistant", "content": "Ops! Sembra esserci stato un problema. Riprova più tardi."})
