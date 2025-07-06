@@ -22,10 +22,10 @@ model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # --- Interfaccia Utente Streamlit ---
 
-st.set_page_config(page_title="Modellando AI Style Advisor", page_icon=":eyeglasses:")
+st.set_page_config(page_title="Modellando AI - Il tuo Progettista", page_icon=":eyeglasses:")
 
-st.title("🤝 Modellando AI Style Advisor")
-st.markdown("Ciao! Sono qui per darti consigli di stile personalizzati, basati sulle ultime tendenze e sulle collezioni dei nostri negozi partner. Chiedimi pure!")
+st.title("😎 Modellando AI - Il tuo Progettista")
+st.markdown("Ciao!Sono un assitente virtuale che ti guiderà nel mondo di Modellando, l'azienda che può aiutarti con il tuo business")
 
 # Inizializza la cronologia della chat se non esiste
 if "messages" not in st.session_state:
